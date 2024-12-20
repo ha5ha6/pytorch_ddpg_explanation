@@ -10,8 +10,7 @@ from actor_critic_networks import *
 from noise_process import *
 
 
-Sequence = namedtuple("Sequence", \
-                ["s", "a", "r", "s_", "done"])
+Sequence = namedtuple("Sequence", ["s", "a", "r", "s_", "done"])
 
 def update_grads(buffer, actor, critic, actor_tar, critic_tar, opt_mu, opt_q):
 
