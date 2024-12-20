@@ -3,7 +3,7 @@
 https://github.com/jdlowman2/rl4robotics
 
 
-### results
+### smoothed results
 
 env=gym.make("LunarLanderContinuous-v2")
 
