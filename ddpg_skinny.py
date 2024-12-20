@@ -4,20 +4,11 @@ import torch
 import torch.optim as optim
 import torch.nn.functional as F
 from collections import namedtuple
-import time
-import csv
-import sys
-
-import argparse
-from pathlib import Path
-import os
-
-import IPython
 
 from memory import *
 from actor_critic_networks import *
 from noise_process import *
-#from read_params_from_file import *
+
 
 Sequence = namedtuple("Sequence", \
                 ["s", "a", "r", "s_", "done"])
