@@ -74,6 +74,4 @@ python ddpg_skinny.py
 
 ### smoothed results
 
-env=gym.make("LunarLanderContinuous-v2")
-
-![](results/results.png)
+![](results/results_no_bn.png)
