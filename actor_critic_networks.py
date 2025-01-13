@@ -10,7 +10,11 @@ class Actor(torch.nn.Module):
         self.action_space = action_space
 
         self.layer1 = torch.nn.Linear(obs_size, l1_size)
+        #bn
+        self.bn1 = nn.BatchNorm1d(l1_size)
         self.layer2 = torch.nn.Linear(l1_size, l2_size)
+        #bn
+        self.bn2 = nn.BatchNorm1d(l2_size)
         self.layer3 = torch.nn.Linear(l2_size, action_space.shape[0])
 
         # Initialization and batch norm ideas from
@@ -31,15 +35,32 @@ class Actor(torch.nn.Module):
 
     def forward(self, x):
         x = F.relu(self.layer1(x))
+        #bn
+        x = self.bn1(x)
         x = F.relu(self.layer2(x))
+        #bn
+        x = self.bn2(x)
         x = self.layer3(x) # Don't use relu on last layer!
 
         x = torch.tanh(x) * torch.from_numpy(self.action_space.high).float()
         return x
 
     def take_action(self, state, added_noise=None):
+
+        #bn
+        if state.ndim == 1:
+            state = state[np.newaxis, :]
+
         state_x = torch.from_numpy(state).float()
-        action = self.forward(state_x).detach().numpy()
+
+        #bn
+        self.eval()
+
+        #bn
+        action = self.forward(state_x).detach().numpy()[0]
+
+        #no bn
+        #action = self.forward(state_x).detach().numpy()
 
         if added_noise is not None:
             action += added_noise
@@ -51,7 +72,11 @@ class Critic(torch.nn.Module):
     def __init__(self, obs_size, action_size, l1_size=400, l2_size=300):
         super(Critic, self).__init__()
         self.layer1 = torch.nn.Linear(obs_size, l1_size)
+        #bn
+        self.bn1 = nn.BatchNorm1d(l1_size)
         self.layer2 = torch.nn.Linear(l1_size+action_size, l2_size)
+        #bn
+        self.bn2 = nn.BatchNorm1d(l2_size)
         self.layer3 = torch.nn.Linear(l2_size, 1)
 
         # Initialization and batch norm ideas from
@@ -71,9 +96,13 @@ class Critic(torch.nn.Module):
 
     def forward(self, x, a):
         layer1_out = self.layer1(x)
+        #bn
+        layer1_out = self.bn1(layer1_out)
         layer1_bn = F.relu(layer1_out)
 
         layer2_out = self.layer2(torch.cat([layer1_bn, a], dim=1))
+        #bn
+        layer2_out = self.bn1(layer2_out)
         layer2_bn = F.relu(layer2_out)
 
         q_value = self.layer3(layer2_bn)
